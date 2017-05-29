@@ -1,6 +1,6 @@
 {
   "name": "olegpro/bitrix-sphinx",
-  "description": "",
+  "description": "Пакет добавляет в 1С-Битрикс возможность работать с индексами sphinx, через ORM D7",
   "keywords": ["bitrix", "sphinx", "orm"],
   "type": "library",
   "license": "MIT",
