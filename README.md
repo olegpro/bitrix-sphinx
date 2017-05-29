@@ -139,6 +139,64 @@ echo '<pre>';print_r($iterator->fetchAll());echo '</pre>';
 
 ```
 
+## С постраничной навигацией 
+
+```php
+<?php
+
+use Bitrix\Main\Application;
+use Bitrix\Main\Entity\ExpressionFieldd;
+use Bitrix\Main\UI\PageNavigation;
+
+require($_SERVER['DOCUMENT_ROOT'] . '/bitrix/header.php');
+
+Application::getConnection(SampleTable::getConnectionName())->startTracker(true);
+
+$nav = new PageNavigation('s');
+
+$nav->allowAllRecords(false)
+    ->setPageSize(10)
+    ->initFromUri();
+
+$iterator = SampleTable::getList([
+    'select' => [
+        '*',
+        new ExpressionField('weight', 'WEIGHT()', 'id'),
+    ],
+    'match' => 'книга',
+    'filter' => [
+        '=available' => 1,
+    ],
+    'count_total' => true,
+    'offset' => $nav->getOffset(),
+    'limit' => $nav->getLimit(),
+    'order' => [
+        'weight' => 'DESC',
+    ],
+    'option' => [
+        'max_matches' => 50000,
+    ],
+]);
+
+$nav->setRecordCount($iterator->getCount());
+
+echo '<pre>';print_r($iterator->getTrackerQuery()->getSql());echo '</pre>';
+
+echo '<pre>';print_r($iterator->fetchAll());echo '</pre>';
+
+
+$APPLICATION->IncludeComponent(
+    "bitrix:main.pagenavigation",
+    "",
+    array(
+        "NAV_OBJECT" => $nav,
+        "SEF_MODE" => "N",
+    ),
+    false
+);
+
+```
+
 
 # Установка пакета
 

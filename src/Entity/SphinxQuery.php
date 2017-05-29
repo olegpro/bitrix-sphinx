@@ -208,4 +208,46 @@ class SphinxQuery extends Query
         return $query;
     }
 
+    /**
+     * @param $query
+     * @return Main\DB\Result|null
+     */
+    protected function query($query)
+    {
+        $connection = $this->entity->getConnection();
+
+        /** @var Main\DB\Result $result */
+        $result = null;
+
+        if ($result === null) {
+            $result = $connection->query($query);
+            $result->setReplacedAliases($this->replaced_aliases);
+
+            if ($this->countTotal) {
+                $cnt = null;
+
+                foreach ($connection->query('SHOW META;')->fetchAll() as $metaRow) {
+                    if (
+                        isset($metaRow['Variable_name'], $metaRow['Value'])
+                        && $metaRow['Variable_name'] === 'total'
+                    ) {
+                        $cnt = (int) $metaRow['Value'];
+
+                        break;
+                    }
+                }
+
+                $result->setCount($cnt);
+            }
+
+            static::$last_query = $query;
+        }
+
+        if ($this->isFetchModificationRequired()) {
+            $result->addFetchDataModifier([$this, 'fetchDataModificationCallback']);
+        }
+
+        return $result;
+    }
+
 }
