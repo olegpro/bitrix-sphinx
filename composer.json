@@ -1,0 +1,25 @@
+{
+  "name": "olegpro/bitrix-sphinx",
+  "description": "",
+  "keywords": ["bitrix", "sphinx", "orm"],
+  "type": "library",
+  "license": "MIT",
+  "support": {
+    "email": "oleg.39style@gmail.com",
+    "issues": "https://github.com/olegpro/bitrix-sphinx/issues",
+    "source": "https://github.com/olegpro/bitrix-sphinx/"
+  },
+  "authors": [
+    {
+      "name": "Oleg Maksimenko",
+      "homepage": "https://www.olegpro.ru",
+      "email": "oleg.39style@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.4.0"
+  },
+  "autoload": {
+    "psr-4": {"Olegpro\\BitrixSphinx\\": "src/"}
+  }
+}
