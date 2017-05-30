@@ -13,6 +13,7 @@ use Bitrix\Main;
 use Bitrix\Main\Entity\QueryChain;
 
 /** @property Base $entity */
+
 class SphinxQuery extends Query
 {
     /**
@@ -33,7 +34,71 @@ class SphinxQuery extends Query
     protected $custom_base_table_alias = '';
 
     /**
-     * @param array $match
+     * Sets a list of fields for SELECT clause
+     *
+     * @param array $select
+     * @return SphinxQuery|Query
+     */
+    public function setSelect(array $select)
+    {
+        return parent::setSelect($select);
+    }
+
+    /**
+     * Sets a list of filters for WHERE clause
+     *
+     * @param array $filter
+     * @return SphinxQuery|Query
+     */
+    public function setFilter(array $filter)
+    {
+        return parent::setFilter($filter);
+    }
+
+    /**
+     * Sets a limit for LIMIT n clause
+     *
+     * @param int $limit
+     * @return SphinxQuery|Query
+     */
+    public function setLimit($limit)
+    {
+        return parent::setLimit($limit);
+    }
+
+    /**
+     * Sets an offset for LIMIT n, m clause
+
+     * @param int $offset
+     * @return SphinxQuery|Query
+     */
+    public function setOffset($offset)
+    {
+        return parent::setOffset($offset);
+    }
+
+    /**
+     * @param null $count
+     * @return SphinxQuery|Query|null
+     */
+    public function countTotal($count = null)
+    {
+        return parent::countTotal($count);
+    }
+
+    /**
+     * Sets a list of fields for ORDER BY clause
+     *
+     * @param mixed $order
+     * @return SphinxQuery|Query
+     */
+    public function setOrder($order)
+    {
+        return parent::setOrder($order);
+    }
+
+    /**
+     * @param array|string $match
      * @return SphinxQuery
      * @throws Main\ArgumentException
      */
