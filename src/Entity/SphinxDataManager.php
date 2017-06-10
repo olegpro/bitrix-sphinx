@@ -75,6 +75,13 @@ class SphinxDataManager extends DataManager
                 case 'match':
                     $query->setMatch($value);
                     break;
+                case 'disable_escape_match':
+                    if ($value) {
+                        $query->disableEscapeMatch();
+                    } else {
+                        $query->enableEscapeMatch();
+                    }
+                    break;
                 case 'option':
                     $query->setOption($value);
                     break;

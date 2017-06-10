@@ -11,11 +11,18 @@ use Bitrix\Main\Entity\Base;
 use Bitrix\Main\Entity\Query;
 use Bitrix\Main;
 use Bitrix\Main\Entity\QueryChain;
+use Olegpro\BitrixSphinx\DB\SphinxConnection;
+use Olegpro\BitrixSphinx\DB\SphinxSqlHelper;
 
 /** @property Base $entity */
 
 class SphinxQuery extends Query
 {
+    /**
+     * @var bool
+     */
+    private $disableEscapeMatch = false;
+
     /**
      * @var
      */
@@ -165,8 +172,10 @@ class SphinxQuery extends Query
     {
         $sql = parent::buildWhere();
 
+        /** @var SphinxConnection $connection */
         $connection = $this->entity->getConnection();
 
+        /** @var SphinxSqlHelper $helper */
         $helper = $connection->getSqlHelper();
 
         if (!empty($this->match)) {
@@ -178,7 +187,7 @@ class SphinxQuery extends Query
 
                 $sql = sprintf(
                     (!empty($sql) ? "MATCH('%s')\nAND %s" : "MATCH('%s')"),
-                    $helper->forSql($match),
+                    $this->isDisableEscapeMatch() ? $match : $helper->escape($match),
                     $sql
                 );
 
@@ -313,6 +322,38 @@ class SphinxQuery extends Query
         }
 
         return $result;
+    }
+
+    /**
+     * Set disableEscapeMatch enable flag
+     *
+     * @return SphinxQuery|Query
+     */
+    public function disableEscapeMatch()
+    {
+        $this->disableEscapeMatch = true;
+
+        return $this;
+    }
+
+    /**
+     * Set disableEscapeMatch enable flag
+     *
+     * @return SphinxQuery|Query
+     */
+    public function enableEscapeMatch()
+    {
+        $this->disableEscapeMatch = false;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDisableEscapeMatch()
+    {
+        return $this->disableEscapeMatch;
     }
 
 }
