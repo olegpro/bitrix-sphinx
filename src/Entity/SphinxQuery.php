@@ -105,6 +105,17 @@ class SphinxQuery extends Query
     }
 
     /**
+     * Sets a list of fileds in GROUP BY clause
+     *
+     * @param mixed $group
+     * @return SphinxQuery|Query
+     */
+    public function setGroup($group)
+    {
+        return parent::setGroup($group);
+    }
+
+    /**
      * @param array|string $match
      * @return SphinxQuery
      * @throws Main\ArgumentException
@@ -216,6 +227,27 @@ class SphinxQuery extends Query
         return join(', ', $sql);
     }
 
+    protected function buildOrder()
+    {
+        $sql = [];
+
+        foreach ($this->order_chains as $chain) {
+            $sort = isset($this->order[$chain->getDefinition()])
+                ? $this->order[$chain->getDefinition()]
+                : $this->order[$chain->getAlias()];
+
+            $connection = $this->entity->getConnection();
+
+            $helper = $connection->getSqlHelper();
+
+            $sqlDefinition = $helper->quote($chain->getAlias());
+
+            $sql[] = $sqlDefinition . ' ' . $sort;
+        }
+
+        return join(', ', $sql);
+    }
+
     protected function buildQuery()
     {
         $connection = $this->entity->getConnection();
@@ -243,7 +275,6 @@ class SphinxQuery extends Query
             $sqlGroup = $this->buildGroup();
             $sqlHaving = $this->buildHaving();
             $sqlOrder = $this->buildOrder();
-            $sqlOption = $this->buildOption();
 
             $sqlFrom = $this->quoteTableSource($this->entity->getDBTableName());
 
@@ -271,6 +302,8 @@ class SphinxQuery extends Query
         if ($this->limit > 0) {
             $query = $helper->getTopSql($query, $this->limit, $this->offset);
         }
+
+        $sqlOption = $this->buildOption();
 
         if (!empty($sqlOption)) {
             $query = sprintf("%s\nOPTION %s", trim($query), $sqlOption);
