@@ -1,5 +1,10 @@
 # Change log
 
+## 0.1.1 - 2017-06-12
+
+* Метод SphinxQuery::buildOrder() теперь подставляет алиасы, а не выражения
+* Добавлен методы SphinxSqlHelper::escape и SphinxQuery::disableEscapeMatch()
+
 ## 0.1.0 - 2017-05-29
 
 * В класс SphinxQuery добавлена поддержка постраничной навигации
