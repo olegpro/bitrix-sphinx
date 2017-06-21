@@ -25,6 +25,7 @@ class SphinxSqlHelper extends MysqliSqlHelper
         static $search = [
             "\\",
             "'",
+            "*",
             "/",
             ")",
             "(",
@@ -43,6 +44,7 @@ class SphinxSqlHelper extends MysqliSqlHelper
         static $replace = [
             "\\\\",
             "\\'",
+            "\\\\\\\\*",
             "\\\\/",
             "\\\\)",
             "\\\\(",
