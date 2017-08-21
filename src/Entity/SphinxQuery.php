@@ -14,6 +14,8 @@ use Bitrix\Main\Entity\QueryChain;
 use Olegpro\BitrixSphinx\DB\SphinxConnection;
 use Olegpro\BitrixSphinx\DB\SphinxSqlHelper;
 use Bitrix\Main\NotSupportedException;
+use Bitrix\Main\Config\Configuration;
+use Bitrix\Main\Application;
 
 /** @property Base $entity */
 
@@ -23,6 +25,11 @@ class SphinxQuery extends Query
      * @var bool
      */
     private $disableEscapeMatch = false;
+
+    /**
+     * @var null|bool
+     */
+    private $useConnectionMasterOnly = null;
 
     /**
      * @var
@@ -336,6 +343,10 @@ class SphinxQuery extends Query
         $result = null;
 
         if ($result === null) {
+            if ($this->isEnableConnectionMasterOnly()) {
+                Application::getInstance()->getConnectionPool()->useMasterOnly(true);
+            }
+
             $result = $connection->query($query);
             $result->setReplacedAliases($this->replaced_aliases);
 
@@ -354,6 +365,10 @@ class SphinxQuery extends Query
                 }
 
                 $result->setCount($cnt);
+            }
+
+            if ($this->isEnableConnectionMasterOnly()) {
+                Application::getInstance()->getConnectionPool()->useMasterOnly(false);
             }
 
             static::$last_query = $query;
@@ -396,6 +411,45 @@ class SphinxQuery extends Query
     public function isDisableEscapeMatch()
     {
         return $this->disableEscapeMatch;
+    }
+
+
+    /**
+     * @return bool
+     */
+    public function isEnableConnectionMasterOnly()
+    {
+        $masterOnly = $this->useConnectionMasterOnly;
+
+        if ($masterOnly === null) {
+            $settingsBitrixSphinx = Configuration::getValue('olegpro_bitrix_sphinx');
+
+            if (is_array($settingsBitrixSphinx) && isset($settingsBitrixSphinx['use_connection_master_only'])) {
+                $masterOnly = $settingsBitrixSphinx['use_connection_master_only'];
+            }
+        }
+
+        return ($masterOnly === true);
+    }
+
+    /**
+     * @return SphinxQuery|Query
+     */
+    public function disableConnectionMasterOnly()
+    {
+        $this->useConnectionMasterOnly = false;
+
+        return $this;
+    }
+
+    /**
+     * @return SphinxQuery|Query
+     */
+    public function enableConnectionMasterOnly()
+    {
+        $this->useConnectionMasterOnly = true;
+
+        return $this;
     }
 
 }

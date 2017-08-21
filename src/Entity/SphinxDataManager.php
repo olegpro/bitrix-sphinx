@@ -82,6 +82,13 @@ class SphinxDataManager extends DataManager
                         $query->enableEscapeMatch();
                     }
                     break;
+                case 'use_connection_master_only':
+                    if ($value) {
+                        $query->enableConnectionMasterOnly();
+                    } else {
+                        $query->disableConnectionMasterOnly();
+                    }
+                    break;
                 case 'option':
                     $query->setOption($value);
                     break;
