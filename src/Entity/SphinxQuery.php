@@ -13,6 +13,7 @@ use Bitrix\Main;
 use Bitrix\Main\Entity\QueryChain;
 use Olegpro\BitrixSphinx\DB\SphinxConnection;
 use Olegpro\BitrixSphinx\DB\SphinxSqlHelper;
+use Bitrix\Main\NotSupportedException;
 
 /** @property Base $entity */
 
@@ -246,6 +247,14 @@ class SphinxQuery extends Query
         }
 
         return join(', ', $sql);
+    }
+
+    /**
+     * @throws NotSupportedException
+     */
+    protected function buildJoin()
+    {
+        throw new NotSupportedException('Sphinx does not support joins');
     }
 
     protected function buildQuery()
