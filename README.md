@@ -197,6 +197,45 @@ $APPLICATION->IncludeComponent(
 
 ```
 
+# Использование только с master-подключением
+
+Можно установить глобально для всего сайта, добавив в /bitrix/.settings.php
+
+```php
+'olegpro_bitrix_sphinx' => 
+    array (
+        'value' => 
+            array (
+              'use_connection_master_only' => true,
+            ),
+    'readonly' => false,
+),
+```
+
+Можно конкретно для каждого запроса передав use_connection_master_only = true:
+
+```php
+
+$iterator = SampleTable::getList([
+    'select' => [
+        '*',
+        new ExpressionField('weight', 'WEIGHT()', 'id'),
+    ],
+    'match' => 'книга',
+    'filter' => [
+        '=available' => 1,
+    ],
+    'limit' => 10,
+    'order' => [
+        'weight' => 'DESC',
+    ],
+    'option' => [
+        'max_matches' => 50000,
+    ],
+    'use_connection_master_only' => true,
+]);
+
+```
 
 # Установка пакета
 
