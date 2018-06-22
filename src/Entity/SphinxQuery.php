@@ -32,6 +32,11 @@ class SphinxQuery extends Query
     private $useConnectionMasterOnly = null;
 
     /**
+     * @var bool
+     */
+    private $disableQuoteAliasSelect = false;
+
+    /**
      * @var
      */
     protected $match;
@@ -47,6 +52,25 @@ class SphinxQuery extends Query
      * @var string
      */
     protected $custom_base_table_alias = '';
+
+    /**
+     * @param Base|Query|string $source
+     * @throws Main\ArgumentException
+     */
+    public function __construct($source)
+    {
+        parent::__construct($source);
+
+        $settingsBitrixSphinx = Configuration::getValue('olegpro_bitrix_sphinx');
+
+        if (
+            is_array($settingsBitrixSphinx)
+            && isset($settingsBitrixSphinx['disable_quite_alias_select'])
+            && is_bool($settingsBitrixSphinx['disable_quite_alias_select'])
+        ) {
+            $this->disableQuoteAliasSelect = $settingsBitrixSphinx['disable_quite_alias_select'];
+        }
+    }
 
     /**
      * Sets a list of fields for SELECT clause
@@ -162,7 +186,8 @@ class SphinxQuery extends Query
     }
 
     /**
-     * @return array|mixed|string
+     * @return string
+     * @throws Main\SystemException
      */
     protected function buildSelect()
     {
@@ -170,7 +195,8 @@ class SphinxQuery extends Query
 
         /** @var QueryChain $chain */
         foreach ($this->select_chains as $chain) {
-            $sql[] = $chain->getSqlDefinition(
+            $sql[] = $this->getSqlDefinitionSelect(
+                $chain,
                 ($chain->getLastElement()->getValue()->getColumnName() !== 'id')
             );
         }
@@ -182,6 +208,24 @@ class SphinxQuery extends Query
         $sql = "\n\t" . join(",\n\t", $sql);
 
         return $sql;
+    }
+
+    /**
+     * @param QueryChain $chain
+     * @param bool $withAlias
+     * @return mixed|string
+     * @throws Main\SystemException
+     */
+    private function getSqlDefinitionSelect(QueryChain $chain, $withAlias = false)
+    {
+        $sqlDef = $chain->getLastElement()->getSqlDefinition();
+
+        if ($withAlias) {
+            $helper = $chain->getLastElement()->getValue()->getEntity()->getConnection()->getSqlHelper();
+            $sqlDef .= ' AS ' . ($this->isDisableQuoteAliasSelect() ? $chain->getAlias() : $helper->quote($chain->getAlias()));
+        }
+
+        return $sqlDef;
     }
 
     /**
@@ -448,6 +492,34 @@ class SphinxQuery extends Query
     public function enableConnectionMasterOnly()
     {
         $this->useConnectionMasterOnly = true;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDisableQuoteAliasSelect()
+    {
+        return $this->disableQuoteAliasSelect;
+    }
+
+    /**
+     * @return SphinxQuery|Query
+     */
+    public function disableQuoteAliasSelect()
+    {
+        $this->disableQuoteAliasSelect = true;
+
+        return $this;
+    }
+
+    /**
+     * @return SphinxQuery|Query
+     */
+    public function enableQuoteAliasSelect()
+    {
+        $this->disableQuoteAliasSelect = false;
 
         return $this;
     }
