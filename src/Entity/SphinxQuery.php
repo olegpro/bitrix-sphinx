@@ -284,17 +284,24 @@ class SphinxQuery extends Query
         $sql = [];
 
         foreach ($this->order_chains as $chain) {
-            $sort = isset($this->order[$chain->getDefinition()])
-                ? $this->order[$chain->getDefinition()]
-                : $this->order[$chain->getAlias()];
+             //Рандомная сортировка при использовании
+            //registerRuntimeField('RAND', new \Bitrix\Main\Entity\ExpressionField('RAND', 'RAND()'));
+            if ($chain->getSqlDefinition() == 'RAND()') {
+                $sql[] = $chain->getSqlDefinition();
+            } else {
 
-            $connection = $this->entity->getConnection();
+                $sort = isset($this->order[$chain->getDefinition()])
+                    ? $this->order[$chain->getDefinition()]
+                    : $this->order[$chain->getAlias()];
 
-            $helper = $connection->getSqlHelper();
+                $connection = $this->entity->getConnection();
 
-            $sqlDefinition = $helper->quote($chain->getAlias());
+                $helper = $connection->getSqlHelper();
 
-            $sql[] = $sqlDefinition . ' ' . $sort;
+                $sqlDefinition = $helper->quote($chain->getAlias());
+
+                $sql[] = $sqlDefinition . ' ' . $sort;
+            }
         }
 
         return join(', ', $sql);
