@@ -315,7 +315,7 @@ class SphinxQuery extends Query
         throw new NotSupportedException('Sphinx does not support joins');
     }
 
-    protected function buildQuery()
+    protected function buildQuery($forceObjectPrimary = true)
     {
         $connection = $this->entity->getConnection();
         $helper = $connection->getSqlHelper();
